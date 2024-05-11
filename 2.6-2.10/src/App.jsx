@@ -1,8 +1,11 @@
 import { useState } from 'react'
+import Search from './components/Search'
+import Contactform from './components/Contactform'
+import Contacts from './components/Contacts'
 
 const App = () => {
   const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-1234567' },
+    { name: 'Arto Hellas', number: '040-1234567', id: 1 },
     { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
     { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
     { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
@@ -54,30 +57,11 @@ const App = () => {
   return (
     <div>
       <h2>Find</h2>
-      <input onChange={handleFindChange} value={searchTerm}/>
+      <Search handleChange={handleFindChange}/>
       <h2>Phonebook</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          name: <input name='name' value={newContact.name} onChange={handleNameChange}/>
-        </div>
-        <div>
-          number: <input name='number' value={newContact.number} onChange={handleNumberChange}/>
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
+      <Contactform handlesubmit={handleSubmit} handlenamechange={handleNameChange} handlenumberchange={handleNumberChange}/>
       <h2>Numbers</h2>
-      {persons.filter(obj => {
-        return obj.name.toLowerCase().startsWith(searchTerm.toLowerCase())
-      }).map(obj => {
-          return (
-            <div key={obj.name}>
-              <p>{obj.name}</p>
-              <p>{obj.number}</p>
-            </div>
-          )
-        })}
+      <Contacts persons={persons} searchterm={searchTerm}/>
     </div>
   )
 }

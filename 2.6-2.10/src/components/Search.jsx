@@ -1,15 +1,12 @@
-import { useState } from "react"
 
-const Search = ({ clicked }) => {
-  const [searchTerm, setSearchTerm] = useState('')
+const Search = (props) => {
   return (
-    <div> 
-      <h2>Find</h2>
-      <input onChange={() => {
-        clicked(searchTerm)
-      }} value={searchTerm}/>
+    <div>Search
+      <input onChange={(e) => {
+        props.handleChange(e)
+      }}/>
     </div>
   )
 }
 
-export default Search 
+export default Search
