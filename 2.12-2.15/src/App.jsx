@@ -23,10 +23,13 @@ const App = () => {
     for (let i = 0; i < persons.length; i++) {
 //      console.log(JSON.stringify(persons[i]), JSON.stringify(newContact))
       if (persons[i].name === newContact.name) {
-        console.log('got here')
         contactService.update(persons[i].id, newContact)
-        .then(response => console.log(response))
+        .then(response => {
+          setPersons(persons.map(person => persons[i].id !== person.id ? person : response.data))
+          console.log(response)
+        })
         alreadyAdded = true
+        console.log(persons, newContact)
         break
       }
     }
