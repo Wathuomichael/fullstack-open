@@ -1,0 +1,9 @@
+.country-list { 
+  display: flex;
+  align-items: center;
+} 
+
+.country-list p {
+    margin: 0
+    margin-right: 10px
+}
