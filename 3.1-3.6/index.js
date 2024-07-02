@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 
+app.use(express.json())
+
 let persons = [
     { 
       "id": "1",
@@ -24,6 +26,7 @@ let persons = [
     }
 ]
 
+
 app.get('/info', (req, res) => {
   const date = new Date()
   res.write(`<p>Phonebook has info for ${persons.length} people</p>`)
@@ -32,23 +35,50 @@ app.get('/info', (req, res) => {
 })
 
 app.get('/api/persons/:id', (req, res) => {
-  const id = req.params.id - '1'
-  if(id > persons.length) {
-    res.status(404)
-  }
-  res.json(persons[id])
+  const id = req.params.id
+  res.send(persons.filter(person => {
+    return person.id == id
+  }))
 })
 
 app.get('/api/persons', (req, res) => {
    res.json(persons) 
 })
 
-app.delete('/api/persons/:id', (req, res) => {
-  const id = req.params.id - '1'
+app.post('/api/persons', (req, res) => {
+  const { name, number } = req.body
+  if (!name || !number) {
+    return res.status(400).json({ 
+      error: 'content missing' 
+    })
+  }
+  persons.forEach(person => {
+    if(name == person.name) {
+      return res.status(400).json({
+        error: 'name must be unique'
+      })
+    }
+  })
+  const person = {
+    id: Math.floor(Math.random() * 100),
+    name,
+    number
+  } 
+  persons.push(person)
+  res.json(persons)
+})
+
+
+app.delete('/api/persons/del/:id', (req, res) => {
+  
+  const id = req.params.id
   res.send(persons.filter(person => {
+    
     return person.id !== id
   }))
+  
 })
+
 
 app.listen('3000', () => {
     console.log(`Server running on port 3000`)
