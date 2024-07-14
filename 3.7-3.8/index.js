@@ -1,11 +1,10 @@
 const express = require('express')
 const morgan = require('morgan')
 const app = express()
+const cors = require('cors')
 
 app.use(express.json())
-morgan.token('body', (req) => JSON.stringify(req.body));
-const logFormat = ':method :url :status :res[content-length] - :response-time ms :body';
-app.use(morgan(logFormat));
+app.use(cors())
 
 
 let persons = [
@@ -31,6 +30,9 @@ let persons = [
     }
 ]
 
+app.get('/', (req, res) => {
+  res.json(persons) 
+})
 
 app.get('/info', (req, res) => {
   const date = new Date()
@@ -46,11 +48,8 @@ app.get('/api/persons/:id', (req, res) => {
   }))
 })
 
-app.get('/api/persons', (req, res) => {
-   res.json(persons) 
-})
 
-app.post('/api/persons', (req, res) => {
+app.post('/', (req, res) => {
   const { name, number } = req.body
   if (!name || !number) {
     return res.status(400).json({ 
@@ -70,7 +69,6 @@ app.post('/api/persons', (req, res) => {
     number
   } 
   persons.push(person)
-  res.json(persons)
 })
 
 
@@ -78,7 +76,6 @@ app.delete('/api/persons/del/:id', (req, res) => {
   
   const id = req.params.id
   res.send(persons.filter(person => {
-    
     return person.id !== id
   }))
   
