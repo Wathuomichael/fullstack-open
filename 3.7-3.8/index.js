@@ -69,6 +69,8 @@ app.post('/', (req, res) => {
     number
   } 
   persons.push(person)
+  console.log('post route', persons)
+  res.json(persons)
 })
 
 
