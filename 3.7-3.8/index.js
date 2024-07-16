@@ -1,11 +1,11 @@
 const express = require('express')
-const morgan = require('morgan')
 const app = express()
 const cors = require('cors')
+const contactModel = require('./db')
 
 app.use(express.json())
 app.use(cors())
-
+require('dotenv').config()
 
 let persons = [
     { 
@@ -30,8 +30,10 @@ let persons = [
     }
 ]
 
-app.get('/', (req, res) => {
-  res.json(persons) 
+app.get('/api', async(req, res) => {
+  const contactsList = await contactModel.find()
+  console.log(contactsList)
+  res.json(contactsList) 
 })
 
 app.get('/info', (req, res) => {
@@ -49,28 +51,21 @@ app.get('/api/persons/:id', (req, res) => {
 })
 
 
-app.post('/', (req, res) => {
+app.post('/api', async(req, res) => {
   const { name, number } = req.body
   if (!name || !number) {
     return res.status(400).json({ 
       error: 'content missing' 
     })
   }
-  persons.forEach(person => {
-    if(name == person.name) {
-      return res.status(400).json({
-        error: 'name must be unique'
-      })
-    }
-  })
-  const person = {
+  const contact = new contactModel({
     id: Math.floor(Math.random() * 100),
     name,
     number
-  } 
-  persons.push(person)
-  console.log('post route', persons)
-  res.json(persons)
+  }) 
+  await contact.save()
+  console.log('post route')
+  res.json(contact)
 })
 
 

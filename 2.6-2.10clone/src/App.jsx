@@ -3,7 +3,7 @@ import Search from './components/Search'
 import Contactform from './components/Contactform'
 import Contacts from './components/Contacts'
 import axios from 'axios'
-const baseUrl = '/api'
+const baseUrl = 'http://localhost:3000/api'
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
