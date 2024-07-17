@@ -1,5 +1,4 @@
-
-const Contacts = ({ persons, searchterm }) => {
+const Contacts = ({ persons, searchterm, deleteContact }) => {
   console.log(persons)
   return (
     <div>
@@ -10,6 +9,9 @@ const Contacts = ({ persons, searchterm }) => {
             <div key={obj.name}>
               <p>{obj.name}</p>
               <p>{obj.number}</p>
+              <button onClick={() => {
+                deleteContact(obj._id)
+              }}>Delete</button>
             </div>
           )
         })}

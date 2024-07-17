@@ -28,8 +28,11 @@ const App = () => {
     let alreadyAdded = false;
 
     for (let i = 0; i < persons.length; i++) {
-      if (JSON.stringify(persons[i]) === JSON.stringify(newContact)) {
-        alert(`${newContact.name} is already added to the phonebook`)
+      console.log(JSON.stringify(persons[i]), JSON.stringify(newContact))
+      if (JSON.stringify(persons[i].name) === JSON.stringify(newContact.name)) {
+        console.log('got here')
+        axios.put(`${baseUrl}/${persons[i]._id}`, newContact)
+        setTrigger(!trigger)
         alreadyAdded = true
         break
       }
@@ -62,6 +65,12 @@ const App = () => {
     const searchInput = e.target.value
     setSearchTerm(searchInput)
   }
+  
+  const handleDelete = async(id) => {
+    console.log(id)
+    await axios.delete(`${baseUrl}/${id}`)
+    setTrigger(!trigger)
+  }
 
   return (
     <div>
@@ -70,7 +79,7 @@ const App = () => {
       <h2>Phonebook</h2>
       <Contactform handlesubmit={handleSubmit} handlenamechange={handleNameChange} handlenumberchange={handleNumberChange}/>
       <h2>Numbers</h2>
-      <Contacts persons={persons} searchterm={searchTerm}/>
+      <Contacts persons={persons} searchterm={searchTerm} deleteContact={handleDelete}/>
     </div>
   )
 }
