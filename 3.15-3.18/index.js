@@ -113,7 +113,7 @@ app.put('/api/:id', async(req, res, next) => {
     number
   }
   try {
-    await contactModel.findByIdAndUpdate({_id: id}, updatedContact)
+    await contactModel.findByIdAndUpdate({_id: id}, updatedContact, { runValidators: true })
     res.json(updatedContact)
   } catch (error) {
     next(error)    

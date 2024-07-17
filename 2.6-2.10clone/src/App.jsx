@@ -3,13 +3,15 @@ import Search from './components/Search'
 import Contactform from './components/Contactform'
 import Contacts from './components/Contacts'
 import axios from 'axios'
-const baseUrl = 'http://localhost:3000/api'
+import Notification from './components/Notification'
+const baseUrl = '/api'
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newContact, setNewContact] = useState({ name: '', number: '' })
   const [searchTerm, setSearchTerm] = useState('')
   const [trigger, setTrigger] = useState(true)
+  const [errorMessage, setErrorMessage] = useState(null)
 
 
   const fetchData = async() => {
@@ -28,20 +30,32 @@ const App = () => {
     let alreadyAdded = false;
 
     for (let i = 0; i < persons.length; i++) {
-      console.log(JSON.stringify(persons[i]), JSON.stringify(newContact))
       if (JSON.stringify(persons[i].name) === JSON.stringify(newContact.name)) {
-        console.log('got here')
-        axios.put(`${baseUrl}/${persons[i]._id}`, newContact)
-        setTrigger(!trigger)
+        try {
+          await axios.put(`${baseUrl}/${persons[i]._id}`, newContact)
+          setTrigger(!trigger)
+        } catch (error) {
+          setErrorMessage(error.response.data.message)
+          setTimeout(() => {          
+            setErrorMessage(null)        
+          }, 5000)
+        }
         alreadyAdded = true
         break
       }
     }
 
     if(!alreadyAdded) {
-      await axios.post(baseUrl, newContact)
-      setTrigger(!trigger)
-      console.log('axios post done')
+      try {
+        await axios.post(baseUrl, newContact)
+        setTrigger(!trigger)
+        console.log('axios post done')
+      } catch (error) {
+        setErrorMessage(error.response.data.message)
+        setTimeout(() => {          
+          setErrorMessage(null)        
+        }, 5000)
+      }
     }
   } 
 
@@ -74,6 +88,7 @@ const App = () => {
 
   return (
     <div>
+      <Notification message={errorMessage} />
       <h2>Find</h2>
       <Search handleChange={handleFindChange}/>
       <h2>Phonebook</h2>
