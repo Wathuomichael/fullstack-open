@@ -7,7 +7,10 @@ const MONGODB_URI = process.env.NODE_ENV === 'test'
   ? process.env.TEST_MONGO_URI
   : process.env.MONGO_URI
 
+const secret = process.env.JWT_SECRET
+
 module.exports = {
   MONGODB_URI,
-  PORT
+  PORT,
+  secret
 }
