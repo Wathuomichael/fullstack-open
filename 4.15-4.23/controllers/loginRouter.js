@@ -6,8 +6,10 @@ const config = require('../utils/config')
 
 loginRouter.post('/', async (request, response) => {
   const { username, password } = request.body
+  console.log(request.body)
 
   const user = await User.findOne({ username })
+  console.log(user)
 
   const userValidation = user === null ? false : await bcrypt.compare(password, user.password) 
 
@@ -15,8 +17,8 @@ loginRouter.post('/', async (request, response) => {
     return response.status(400).json({ message: 'invalid credentials' })
   }
   
-  const token = jwt.sign(user.id, config.secret)
-  response.status(200).send(token)
+  const token = jwt.sign(user.toJSON(), config.secret)
+  response.status(200).json({ token })
 })
 
 module.exports = loginRouter

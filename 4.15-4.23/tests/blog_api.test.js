@@ -1,41 +1,54 @@
 const { test, beforeEach, after } = require('node:test')
 const assert= require('node:assert')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const helper = require('./test_helper')
 const supertest = require('supertest')
 const app = require('../app')
 const connectDB = require('../utils/db')
 const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
 
 const api = supertest(app)
 
 beforeEach(async () => {
-  await connectDB()
   await Blog.deleteMany({})
-  console.log('deleted')
 
   let blogObject = new Blog(helper.initialBlogs[0])  
   await blogObject.save()
-  console.log('saved one')
 
   blogObject = new Blog(helper.initialBlogs[1])  
   await blogObject.save()
-  console.log('saved two')
+
+  await User.deleteMany({})
+  await api
+  .post('/api/users')
+  .send({ username: 'testuser', name: 'testuser', password: 'testpassword'})
+  .expect(201)
+
+  const response = await api
+  .post('/api/users/login')
+  .send({ username: 'testuser', password: 'testpassword'})
+  .expect(200)
+
+  token = response.body.token
+  console.log('finished before')
 })
 
 test('app returns correct amount of blogs in JSON', async () => {
   console.log('test started')
   await api
   .get('/api/blogs')
+  .set('Authorization',`Bearer ${token}`)
   .expect(200)
   .expect('Content-Type', /application\/json/)
 
-  const response = await api.get('/api/blogs')
+  const response = await helper.blogsInDb()
   assert.strictEqual(response.body.length, helper.initialBlogs.length)
 })
 
 test('check for unique identifier id in blog posts', async () => {
-  const response = await api.get('/api/blogs')
+  const response = await api.get('/api/blogs').set('Authorization', `Bearer ${token}`)
   const post = response.body[0]
 
   assert.ok(post.id)

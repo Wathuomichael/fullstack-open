@@ -4,13 +4,6 @@ const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 const config = require('../utils/config')
 
-const getToken = (request) => {
-  const authorization = request.get('authorization')
-  if(authorization && authorization.startsWith('Bearer')) {
-    const token = authorization.replace('Bearer ', '')
-    return token
-  }
-}
 
 blogRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('user')
@@ -18,13 +11,12 @@ blogRouter.get('/', async (request, response) => {
 })
 
 blogRouter.post('/', async (request, response) => {
-  const token = getToken(request)
   const { title, author, url, likes } = request.body
-  const decodedToken = jwt.verify(token, config.secret)
+  const user = request.user
+  const decodedToken = jwt.verify(request.token, config.secret)
   if(!decodedToken.id) {
-    response.status(400).json({ message: 'invalid token' })
+    response.status(401).json({ message: 'invalid token' })
   }
-  const user = await User.findById(decodedToken.id)
 
   if(!(request.body.title && request.body.url)) {
     response.status(400).json({
@@ -46,7 +38,24 @@ blogRouter.post('/', async (request, response) => {
 
 blogRouter.delete('/:id', async (request, response) => {
   const id = request.params.id  
+  const user = request.user
+  const blog = await Blog.findById(id)
+  const decodedToken = jwt.verify(request.token, config.secret)
+
+  if(!decodedToken.id) {
+    request.status(401).json({ message: 'invalid token' })
+  }
+
+
+  if((decodedToken.id.toString() === blog.user.id.toString())) {
+    response.status(401).json({ message: 'Unauthorized'})
+  }
+
   const deletedBlog = await Blog.findByIdAndDelete({ _id: id })
+  const index = user.blogs.indexOf(id)
+  user.blogs.splice(index, 1)
+  await user.save()
+
   response.status(204).json(deletedBlog)
 })
 
