@@ -13,26 +13,33 @@ const api = supertest(app)
 
 beforeEach(async () => {
   await Blog.deleteMany({})
+  console.log('deleted blogs')
 
   let blogObject = new Blog(helper.initialBlogs[0])  
   await blogObject.save()
+  console.log('added blog one')
 
   blogObject = new Blog(helper.initialBlogs[1])  
   await blogObject.save()
+  console.log('added blog two')
 
   await User.deleteMany({})
-  await api
-  .post('/api/users')
-  .send({ username: 'testuser', name: 'testuser', password: 'testpassword'})
-  .expect(201)
+  const user = new User({
+    username: 'testuser',
+    name: 'testuser',
+    password: await bcrypt.hash('testpassword', 10)
+  });
+  await user.save();
+  console.log('added user')
 
   const response = await api
   .post('/api/users/login')
   .send({ username: 'testuser', password: 'testpassword'})
   .expect(200)
+  console.log('finished login')
 
   token = response.body.token
-  console.log('finished before')
+  console.log('finished before', token)
 })
 
 test('app returns correct amount of blogs in JSON', async () => {
@@ -43,8 +50,8 @@ test('app returns correct amount of blogs in JSON', async () => {
   .expect(200)
   .expect('Content-Type', /application\/json/)
 
-  const response = await helper.blogsInDb()
-  assert.strictEqual(response.body.length, helper.initialBlogs.length)
+  const blogsAtEnd = await helper.blogsInDb()
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
 })
 
 test('check for unique identifier id in blog posts', async () => {
@@ -58,21 +65,39 @@ test('check for unique identifier id in blog posts', async () => {
 test('checks whether a new blog post is created', async () => {
   const newPost = {
     title: 'SUB settings',
-    author: 'redDevilMike',
-    url: 'x.com/reddevilmike',
+    author: 'testuser',
+    url: 'x.com/testuser',
     likes: 1000
   }
   await api
   .post('/api/blogs')
+  .set('Authorization',`Bearer ${token}`)
   .send(newPost)
   .expect(201)
   .expect('Content-Type', /application\/json/)
   
-  const response = await api.get('/api/blogs')
-  assert(response.body.length, helper.initialBlogs.length + 1)
+  const blogsAtEnd = await helper.blogsInDb()
+  assert(blogsAtEnd.length, helper.initialBlogs.length + 1)
   
-  const contents = response.body.map(r => r.title)
+  const contents = blogsAtEnd.map(r => r.title)
   assert(contents.includes('SUB settings'))
+})
+
+test('adding blog without token fails with proper status code', async () => {
+  const newPost = {
+    title: 'testnotoken',
+    author: 'testuser',
+    url: 'x.com/testuser',
+    likes: 200
+  }
+
+  await api
+  .post('/api/blogs')
+  .send(newPost)
+  .expect(401)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  assert.strictEqual(helper.initialBlogs.length, blogsAtEnd.length)
 })
 
 test('verifies likes has a default value of zero', async () => {
@@ -83,12 +108,13 @@ test('verifies likes has a default value of zero', async () => {
   }
   await api
   .post('/api/blogs')
+  .set('Authorization',`Bearer ${token}`)
   .send(newPost)
   .expect(201)
   .expect('Content-Type', /application\/json/)
 
-  const response = await api.get('/api/blogs')
-  const contents = response.body.map(r => r.likes)
+  const blogsAtEnd = await helper.blogsInDb()
+  const contents = blogsAtEnd.map(r => r.likes)
   assert(contents.includes(0))
 })
 
@@ -100,6 +126,7 @@ test('verifies backend response to missing properties', async () => {
   }
   await api
   .post('/api/blogs')
+  .set('Authorization',`Bearer ${token}`)
   .send(newPost)
   .expect(400)
 })
@@ -110,6 +137,7 @@ test('deletion of a blog succeeds with code 204 if id is valid', async () => {
 
   await api
   .delete(`/api/blogs/${blogToDelete.id}`)
+  .set('Authorization',`Bearer ${token}`)
   .expect(204)
 
   const blogsAtEnd = await helper.blogsInDb()
