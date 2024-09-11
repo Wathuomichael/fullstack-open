@@ -25,6 +25,7 @@ const App = () => {
     if(loggedInUser) {
       const user = JSON.parse(loggedInUser)
       setUser(user)
+      console.log(user)
     }
   }, [])
 
