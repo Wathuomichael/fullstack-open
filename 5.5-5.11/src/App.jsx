@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import BlogForm from './components/BlogForm'
 import blogService from './services/blogs'
 import Login from './components/Login'
@@ -56,6 +56,31 @@ const App = () => {
     }
   }
 
+  const addLike = async (blog) => {
+    const newBlog = {
+      title: blog.title,
+      author: blog.author,
+      likes: blog.likes + 1,
+      url: blog.url,
+      user: blog.user.id
+    }
+    console.log(blog)
+    const updateLikes = await blogService.updateBlog(newBlog, blog.id) 
+    const updatedBlogs = await blogService.getAll()
+    setBlogs(updatedBlogs)
+  }
+
+  const handleBlogDelete = async (blog) => {
+    if(window.confirm(`Delete blog ${blog.title} by ${blog.author}`)) {
+      const deletedBlog = await blogService.deleteBlog(blog.id)
+      setBlogs(prevBlogs => prevBlogs.filter(prevBlog => prevBlog.id !== blog.id))
+    }
+  }
+
+  const sortedBlogs = useMemo(() => {
+    return [...blogs].sort((a, b) => b.likes - a.likes )
+  }, [blogs])
+
   return (
     <div>
       <Notification message={message}/>
@@ -67,8 +92,8 @@ const App = () => {
             <BlogForm user={user} createBlog={addBlog} />
           </Togglable>
           <h1>Blogs</h1>
-          {blogs.map(blog => {
-            return <Blog key={blog.id} blog={blog}/>
+          {sortedBlogs.map(blog => {
+            return <Blog key={blog.id} blog={blog} addLike={addLike} deleteBlog={handleBlogDelete} />
           })}
         </div>}
     </div>

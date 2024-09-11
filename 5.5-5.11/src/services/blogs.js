@@ -16,4 +16,14 @@ const addBlog = async (blog) => {
   return addedBlog
 }
 
-export default { getAll, addBlog }
+const updateBlog = async(newBlog, id) => {
+  const updatedBlog = await axios.put(`${baseUrl}/${id}`, newBlog, config)
+  return updatedBlog
+}
+
+const deleteBlog = async(id) => {
+  const deletedBlog = await axios.delete(`${baseUrl}/${id}`, config)
+  return deletedBlog
+}
+
+export default { getAll, addBlog, updateBlog, deleteBlog }
