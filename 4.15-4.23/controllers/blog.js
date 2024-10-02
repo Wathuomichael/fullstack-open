@@ -14,6 +14,7 @@ blogRouter.post('/', async (request, response) => {
   const { title, author, url, likes } = request.body
   const decodedToken = jwt.verify(request.token, config.secret)
   const user = await User.findById({ _id: decodedToken.id })
+  console.log(decodedToken.id, request.token, user)
   if(!decodedToken.id) {
     response.status(401).json({ message: 'invalid token' })
   }
@@ -23,6 +24,7 @@ blogRouter.post('/', async (request, response) => {
       message: 'missing properties'
     })
   }
+
   const blog = new Blog({
     title,
     author, 

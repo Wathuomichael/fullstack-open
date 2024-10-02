@@ -13,7 +13,7 @@ const Blog = ({ blog, addLike, deleteBlog }) => {
   const fullView = view ? { display: '' } : { display: 'none' }
 
   return (
-    <div style={blogStyle}>
+    <div className="blog" style={blogStyle}>
       <div className="title">
         {blog.title}
       </div>

@@ -18,15 +18,15 @@ const BlogForm = ({ createBlog }) => {
       <form onSubmit={handleBlogSubmit}>
         <h1>Create new</h1>
         <div>
-          Title:<input placeholder="title" type='text' value={blogTitle} onChange={({ target }) => setBlogTitle(target.value)}></input>
+          Title:<input className="title" placeholder="title" type='text' value={blogTitle} onChange={({ target }) => setBlogTitle(target.value)}></input>
         </div>
         <div>
-          Author:<input placeholder="author" type='text' value={blogAuthor} onChange={({ target }) => setBlogAuthor(target.value)}></input>
+          Author:<input className="author" placeholder="author" type='text' value={blogAuthor} onChange={({ target }) => setBlogAuthor(target.value)}></input>
         </div>
         <div>
-          Url:<input placeholder="url" type='text' value={blogUrl} onChange={({ target }) => setBlogUrl(target.value)}></input>
+          Url:<input className="url" placeholder="url" type='text' value={blogUrl} onChange={({ target }) => setBlogUrl(target.value)}></input>
         </div>
-        <button type='submit'>Create</button>
+        <button className="createblog" type='submit'>Create</button>
       </form>
     </div> 
   ) 
