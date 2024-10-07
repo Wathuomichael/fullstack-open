@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux"
 
-const Notification = ({ anecdotes }) => {
+const Notification = () => {
   const notification = useSelector(state => state.notification)
   const style = notification ? 
     {
@@ -14,7 +14,7 @@ const Notification = ({ anecdotes }) => {
     }
   return (
     <div style={style}>
-      {anecdotes.map(anecdote => anecdote.id == notification ? anecdote.content : '')}
+      {notification}
     </div>
   )
 }

@@ -1,18 +1,17 @@
 import { useSelector, useDispatch } from 'react-redux'
-import { addVote, createAnecdote, setAnecdotes } from './reducers/anecdoteReducer'
-import { notify, remove } from './reducers/notificationReducer'
+import { addVote, initializeAnecdotes, newAnecdote } from './reducers/anecdoteReducer'
+import { setNotification } from './reducers/notificationReducer'
 import AnecdoteForm from './components/AnecdoteForm'
 import AnecdoteList from './components/AnecdoteList'
 import Filter from './components/Filter'
 import Notification from './components/Notification'
 import { useEffect } from 'react'
-import anecdoteService from './services/anecdotes'
 
 const App = () => {
   const dispatch = useDispatch()
   
   useEffect(() => {
-    anecdoteService.getAll().then(anecdotes => dispatch(setAnecdotes(anecdotes)))       
+    dispatch(initializeAnecdotes())
   }, [])
 
   const anecdotes = useSelector(state => state.anecdotes.filter((anecdote) => {
@@ -20,19 +19,15 @@ const App = () => {
     return Boolean(anecdote.content.match(pattern))
   }))
 
-  const vote = (id) => {
-    dispatch(addVote(id))
-    dispatch(notify(id))
-    setTimeout(() => {
-      dispatch(remove(''))
-    }, 5000)
+  const vote = (anecdote) => {
+    dispatch(addVote(anecdote.id))
+    dispatch(setNotification(`You voted '${anecdote.content}'`, 5))
   }
 
   const addAnecdote = async(event) => {
     event.preventDefault()
     const anecdote = event.target.anecdote.value
-    const newAnecdote = await anecdoteService.addAnecdote(anecdote) 
-    dispatch(createAnecdote(newAnecdote))
+    dispatch(newAnecdote(anecdote))
     event.target.anecdote.value = ''
   }
 
@@ -40,7 +35,7 @@ const App = () => {
     <div>
       <h2>Anecdotes</h2>
       <Filter />
-      <Notification anecdotes={anecdotes}/>
+      <Notification />
       <AnecdoteList anecdotes={anecdotes} vote={vote}/>
       <AnecdoteForm addAnecdote={addAnecdote}/>
     </div>
