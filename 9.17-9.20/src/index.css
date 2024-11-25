@@ -1,0 +1,22 @@
+form {
+  display: block;
+}
+
+.full {
+  display: block;
+  margin-bottom: 10px; 
+}
+
+.error {
+  color: red;
+}
+
+.radio-group {
+  display: flex;
+  gap: 0.5rem; 
+}
+
+form > div {
+  margin-bottom: 0.5rem;
+}
+
