@@ -6,13 +6,14 @@ const getPatients = (): Patient[] => {
 };
 
 const getSafePatients = (): SafePatient[] => {
-    return patientData.map(({ id, name, dateOfBirth, gender, occupation }) => {
+    return patientData.map(({ id, name, dateOfBirth, gender, occupation, entries }) => {
         return {
             id,
             name,
             dateOfBirth,
             gender,
-            occupation
+            occupation,
+            entries
         };
     });
 };

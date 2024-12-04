@@ -1,4 +1,4 @@
-import { Gender, newPatient } from "../types";
+import { Entry, Gender, newPatient } from "../types";
 
 const isString = (text: unknown): text is string => {
     return typeof text === 'string' || text instanceof String;
@@ -12,6 +12,19 @@ const isGender = (gender: string): gender is Gender => {
     return Object.values(Gender).map(g => g.toString()).includes(gender);
 }; 
 
+const isEntry = (entry: unknown): entry is Entry => {
+    const validTypes = ["Hospital", "HealthCheck", "OccupationalHealthcare"];
+    if (
+        typeof entry === "object" &&
+            entry !== null &&
+            "type" in entry &&
+            typeof entry.type === 'string' &&
+            validTypes.includes(entry.type)
+    ) {
+        return true;
+    }
+    return false;
+};
 const parseName = (name: unknown): string => {
     if(!name || !isString(name)) {
         throw new Error('Incorrect or missing name');
@@ -52,18 +65,29 @@ const parseOccupation = (occupation: unknown): string => {
     return occupation;
 };
 
+const parseEntries = (entries: unknown): Entry[] => {
+    if (!Array.isArray(entries)) {
+        throw new Error("Incorrect or missing entries");
+    }
+    if (!entries.every(isEntry)) {
+        throw new Error("Invalid entries");
+    }
+
+    return entries;
+};
+
 export const toNewPatient = (object: unknown): newPatient => {
     if(!object || typeof object !== 'object') {
         throw new Error('Incorrect or missing data');
     }
 
-    if('name' in object && 'dateOfBirth' in object && 'ssn' in object && 'gender' in object && 'occupation' in object) {
+    if('name' in object && 'dateOfBirth' in object && 'ssn' in object && 'gender' in object && 'occupation' in object && 'entries' in object) {
         return {
             name: parseName(object.name),
             dateOfBirth: parseDate(object.dateOfBirth),
             ssn: parseSsn(object.ssn),
             gender: parseGender(object.gender),
-            entries: [],
+            entries: parseEntries(object.entries),
             occupation: parseOccupation(object.occupation)
         };
     }
