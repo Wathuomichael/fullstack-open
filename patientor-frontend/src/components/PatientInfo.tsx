@@ -1,5 +1,6 @@
 import { useMatch } from "react-router-dom";
 import { Diagnosis, Patient } from "../types";
+import EntryDetails from "./EntryDetails";
 
 interface Props {
   patients: Patient[],
@@ -19,7 +20,7 @@ const PatientInfo = ({ patients, diagnoses }: Props) => {
       <div>{patient?.entries?.map(entry => {
         return (
           <div key={entry.id}>
-            <p>{entry.date} {entry.description}</p>
+            <EntryDetails entry={entry} />
             <ul>{entry.diagnosisCodes?.map(code => {
               const diagnosis = diagnoses.find(d => d.code == code);
               return <li key={code}>{code} {diagnosis?.name}</li>;
