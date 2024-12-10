@@ -1,4 +1,4 @@
-import { Entry, Gender, newPatient } from "../types";
+import { Entry, Gender, newPatient } from "../../types";
 
 const isString = (text: unknown): text is string => {
     return typeof text === 'string' || text instanceof String;
