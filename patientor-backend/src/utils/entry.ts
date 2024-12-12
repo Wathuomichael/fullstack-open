@@ -1,4 +1,4 @@
-import { Diagnosis, EntryWithoutId, HealthCheckRating, HospitalEntry, OccupationalHealthcareEntry } from "../../types";
+import { BaseEntryWithoutId, Diagnosis, EntryWithoutId, HealthCheckEntry, HealthCheckRating, HospitalEntry, OccupationalHealthcareEntry } from "../../types";
 
 const isString = (text: unknown): text is string => {
     return typeof text === 'string' || text instanceof String;
@@ -97,7 +97,95 @@ const parseDischarge = (discharge: unknown): HospitalEntry['discharge'] => {
     return { date, criteria };
 };
 
-export const toNewEntry = (object: unknown): EntryWithoutId => {
+const parseBaseEntry = (object: unknown): BaseEntryWithoutId => {
+    if(!object || typeof object !== 'object') {
+        throw new Error('Incorrect or missing data');
+    }
+
+    if('description' in object && 'date' in object && 'specialist' in object && 'diagnosisCodes' in object) {
+        return {
+            description: parseDescription(object.description),
+            date: parseDate(object.date),
+            specialist: parseSpecialist(object.specialist),
+            diagnosisCodes: parseDiagnosisCodes(object.diagnosisCodes)
+        };
+    }
+
+    throw new Error('Invalid base entry');
+};
+
+const parseHealthCheckEntry = (object: unknown): Omit<HealthCheckEntry, 'id'> => {
+    const baseEntry = parseBaseEntry(object);
+
+    if(!object || typeof object !== 'object') {
+        throw new Error('Incorrect or missing data');
+    }
+
+    if('type' in object && object.type === 'HealthCheck' && 'healthCheckRating' in object) {
+        return {
+            ...baseEntry,
+            type: 'HealthCheck',
+            healthCheckRating: parseHealthCheckRating(object.healthCheckRating)
+        };
+    }
+
+    throw new Error('Incorrect Healthcheck entry');
+};
+
+const parseHospitalEntry = (object: unknown): Omit<HospitalEntry, 'id'> => {
+    const baseEntry = parseBaseEntry(object);
+
+    if(!object || typeof object !== 'object') {
+        throw new Error('Incorrect or missing data');
+    }
+
+    if('type' in object && object.type === 'Hospital' && 'discharge' in object) {
+        return {
+            ...baseEntry,
+            type: 'Hospital',
+            discharge: parseDischarge(object.discharge)
+        };
+    }
+
+    throw new Error('Incorrect Hospital Entry');
+};
+
+const parseOccupationalHealthcareEntry = (object: unknown): Omit<OccupationalHealthcareEntry, 'id'> => {
+    const baseEntry = parseBaseEntry(object);
+
+    if(!object || typeof object !== 'object') {
+        throw new Error('Incorrect or missing data');
+    }
+
+    if('type' in object && object.type === 'OccupationalHealthcare' && 'employerName' in object && 'sickLeave' in object) {
+        return {
+            ...baseEntry,
+            type: 'OccupationalHealthcare',
+            employerName: parseEmployerName(object.employerName),
+            sickLeave: parseSickLeave(object.sickLeave)
+        };
+    }
+
+    throw new Error('Incorrect occupationalhealthcare entry');
+};
+
+export const parseEntry = (object: unknown): EntryWithoutId => {
+    if(!object || typeof object !== 'object' || !('type' in object)) {
+        throw new Error('Incorrect or missing data');
+    }
+    switch (object.type) {
+        case 'HealthCheck':
+            return parseHealthCheckEntry(object);
+        case 'OccupationalHealthcare':
+            return parseOccupationalHealthcareEntry(object);
+        case 'Hospital':
+            return parseHospitalEntry(object);
+        default:
+            throw new Error('Invalid entry type');
+    }
+};
+
+/* export const toNewEntry = (object: unknown): EntryWithoutId => {
     if(!object || typeof object !== 'object') {
         throw new Error('Incorrect or missing data');
     }
@@ -139,4 +227,4 @@ export const toNewEntry = (object: unknown): EntryWithoutId => {
     throw new Error('Incorrect or missing fields');
 };
 
-
+*/
