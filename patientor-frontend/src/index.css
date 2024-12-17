@@ -59,6 +59,25 @@ button:focus-visible {
   border: solid;
 }
 
+.patient-info {
+  display: block;
+  border: dotted;
+  margin: 1rem 0rem 1rem;
+}
+
+.patient-info > input {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.patient-info > button {
+  margin: 10px;
+}
+
+.addEntry {
+  float: right;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
